@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상지재활 홈스쿨 - OOO 님</title>
+    <style>
+        :root {
+            --primary-color: #0d9488;
+            --primary-light: #f0fdfa;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --white: #ffffff;
+            --gray: #64748b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; padding-bottom: 50px; }
+        
+        .header { background: linear-gradient(135deg, #0d9488, #14b8a6); color: var(--white); padding: 25px 20px; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header h1 { font-size: 1.4rem; margin-bottom: 5px; }
+        .header p { font-size: 0.9rem; opacity: 0.9; }
+
+        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+
+        .card { background: var(--white); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card h2 { font-size: 1.1rem; color: var(--primary-color); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+        /* 대시보드 요약 */
+        .dashboard-box { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 15px; }
+        .dash-item { flex: 1; background: var(--bg-color); padding: 12px; border-radius: 12px; text-align: center; }
+        .dash-item span { display: block; font-size: 0.8rem; color: var(--gray); }
+        .dash-item strong { font-size: 1.2rem; color: var(--primary-color); }
+
+        /* 주차별 탭 */
+        .tab-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 0 0 auto; padding: 8px 14px; border: 1px solid #cbd5e1; background: var(--white); border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+        .tab-btn.active { background: var(--primary-color); color: var(--white); border-color: var(--primary-color); font-weight: bold; }
+
+        /* 비디오 영역 */
+        .video-box { position: relative; width: 100%; padding-bottom: 56.25%; background: #000; border-radius: 12px; overflow: hidden; margin-bottom: 15px; }
+        .video-box iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+        .notice-box { background: #f0fdfa; border-left: 4px solid var(--primary-color); padding: 12px; border-radius: 8px; font-size: 0.85rem; color: #0f766e; margin-bottom: 15px; }
+
+        /* 출석체크 버튼 */
+        .check-btn { width: 100%; background: #10b981; color: var(--white); border: none; padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
+        .check-btn:active { transform: scale(0.98); }
+        .check-btn.completed { background: var(--gray); }
+
+        /* 스탬프 보드 */
+        .stamp-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; text-align: center; margin-top: 10px; }
+        .stamp-item { background: var(--bg-color); border: 2px dashed #cbd5e1; border-radius: 10px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; color: #cbd5e1; }
+        .stamp-item.checked { background: var(--primary-light); border: 2px solid var(--primary-color); color: var(--primary-color); }
+
+        .reward-banner { background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 12px; padding: 15px; text-align: center; color: #92400e; font-size: 0.9rem; font-weight: bold; margin-top: 15px; }
+        
+        .teacher-note { background: #fffbeb; border: 1px dashed #f59e0b; padding: 12px; border-radius: 10px; font-size: 0.85rem; color: #b45309; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🌱 상지재활 홈스쿨</h1>
+        <p>김철수 님을 위한 맞춤형 6주 홈케어 프로그램</p>
+    </div>
+
+    <div class="container">
+        <!-- 대시보드 요약 카드 -->
+        <div class="card">
+            <h2>📊 환자 맞춤형 대시보드</h2>
+            <div class="dashboard-box">
+                <div class="dash-item">
+                    <span>획득한 스탬프</span>
+                    <strong id="stampCount">0</strong> / 6
+                </div>
+                <div class="dash-item">
+                    <span>전체 달성률</span>
+                    <strong id="percentRate">0%</strong>
+                </div>
+                <div class="dash-item">
+                    <span>리워드 상태</span>
+                    <strong id="rewardStatus" style="font-size: 0.9rem; color: #d97706;">진행 중</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- 주차별 영상 및 운동 카드 -->
+        <div class="card">
+            <h2>📹 홈케어 영상 시청 및 숙제</h2>
+            
+            <!-- 주차 탭 -->
+            <div class="tab-container" id="tabContainer">
+                <button class="tab-btn active" onclick="switchWeek(1)">1주차</button>
+                <button class="tab-btn" onclick="switchWeek(2)">2주차</button>
+                <button class="tab-btn" onclick="switchWeek(3)">3주차</button>
+                <button class="tab-btn" onclick="switchWeek(4)">4주차</button>
+                <button class="tab-btn" onclick="switchWeek(5)">5주차</button>
+                <button class="tab-btn" onclick="switchWeek(6)">6주차</button>
+            </div>
+
+            <!-- 비디오 영역 (유튜브 연동) -->
+            <div class="video-box">
+                <iframe id="videoFrame" src="" title="Rehab Video" allowfullscreen></iframe>
+            </div>
+
+            <div class="notice-box" id="videoNotice">
+                <!-- 설명 자동 입력 -->
+            </div>
+
+            <button class="check-btn" id="checkBtn" onclick="toggleCheck()">이번 주 홈케어 완료 체크하기 ✔</button>
+            
+            <div class="teacher-note">
+                💡 <strong>선생님 안내:</strong> 영상을 직접 변경하시려면 코드 안의 <code>weekData</code> 부분에서 유튜브 링크만 원하는 영상 주소로 쏙 바꿔주시면 됩니다!
+            </div>
+        </div>
+
+        <!-- 스탬프 보드 및 리워드 카드 -->
+        <div class="card">
+            <h2>🏆 6주 스탬프 보상판</h2>
+            <div class="stamp-grid" id="stampGrid">
+                <!-- 자바스크립트로 자동 생성됨 -->
+            </div>
+            <div class="reward-banner" id="rewardBanner">
+                🎁 스탬프 6개를 모두 모으면 리워드 상품이 증정됩니다!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* 
+          [선생님 가이드] 
+          아래의 url 주소("https://www.youtube.com/embed/...") 부분에 
+          선생님께서 올리신 유튜브 영상의 임베드(Embed) 주소를 넣어주시면 
+          사이트에서 해당 영상이 바로 재생됩니다!
+        */
+        const weekData = {
+            1: { title: "1주차 목표: 어깨와 팔꿈치 관절 가동범위 확보 및 긴장 이완", url: "https://www.youtube.com/embed/jfKfPfyJRdk" },
+            2: { title: "2주차 목표: 벽 짐볼 밀기를 통한 견갑골(날개뼈) 안정화 훈련", url: "https://www.youtube.com/embed/5qap5aO4i9A" },
+            3: { title: "3주차 목표: 추감기 훈련을 통한 상지 협응력 및 지구력 향상", url: "https://www.youtube.com/embed/jfKfPfyJRdk" },
+            4: { title: "4주차 목표: 소근육 조작 및 일상생활 연계 동작 연습", url: "https://www.youtube.com/embed/5qap5aO4i9A" },
+            5: { title: "5주차 목표: 과제 지향적 반복 훈련 및 보상작용 줄이기", url: "https://www.youtube.com/embed/jfKfPfyJRdk" },
+            6: { title: "6주차 목표: 6주간의 회복 프로그램 총정리 및 최종 점검", url: "https://www.youtube.com/embed/5qap5aO4i9A" }
+        };
+
+        let currentWeek = 1;
+        let checkedWeeks = JSON.parse(localStorage.getItem('rehab_checked_v2')) || {1:false, 2:false, 3:false, 4:false, 5:false, 6:false};
+
+        function switchWeek(week) {
+            currentWeek = week;
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach((btn, index) => {
+                if(index + 1 === week) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            document.getElementById('videoFrame').src = weekData[week].url;
+            document.getElementById('videoNotice').innerText = weekData[week].title;
+
+            const checkBtn = document.getElementById('checkBtn');
+            if(checkedWeeks[week]) {
+                checkBtn.innerText = "✔ 이번 주 숙제 완료됨 (취소하려면 누르세요)";
+                checkBtn.classList.add('completed');
+            } else {
+                checkBtn.innerText = "이번 주 홈케어 완료 체크하기 ✔";
+                checkBtn.classList.remove('completed');
+            }
+        }
+
+        function toggleCheck() {
+            checkedWeeks[currentWeek] = !checkedWeeks[currentWeek];
+            localStorage.setItem('rehab_checked_v2', JSON.stringify(checkedWeeks));
+            
+            switchWeek(currentWeek);
+            renderStamps();
+        }
+
+        function renderStamps() {
+            const grid = document.getElementById('stampGrid');
+            grid.innerHTML = '';
+            let count = 0;
+
+            for(let i=1; i<=6; i++) {
+                const item = document.createElement('div');
+                item.className = 'stamp-item';
+                if(checkedWeeks[i]) {
+                    item.classList.add('checked');
+                    item.innerHTML = '★';
+                    count++;
+                } else {
+                    item.innerHTML = i;
+                }
+                grid.appendChild(item);
+            }
+
+            document.getElementById('stampCount').innerText = count;
+            const percent = Math.round((count / 6) * 100);
+            document.getElementById('percentRate').innerText = percent + "%";
+            
+            const banner = document.getElementById('rewardBanner');
+            const statusText = document.getElementById('rewardStatus');
+
+            if(count === 6) {
+                banner.style.background = "linear-gradient(135deg, #0d9488, #14b8a6)";
+                banner.style.color = "#ffffff";
+                banner.innerText = "🎉 축하합니다! 6주 완성 리워드 상품 수령 자격이 달성되었습니다!";
+                statusText.innerText = "달성 완료! 🎁";
+                statusText.style.color = "#0d9488";
+            } else {
+                banner.style.background = "linear-gradient(135deg, #fef3c7, #fde68a)";
+                banner.style.color = "#92400e";
+                banner.innerText = `🎁 스탬프 ${6 - count}개만 더 모으면 리워드 상품이 증정됩니다!`;
+                statusText.innerText = "진행 중 (미달성)";
+                statusText.style.color = "#d97706";
+            }
+        }
+
+        renderStamps();
+        switchWeek(1);
+    </script>
+</body>
+</html>
